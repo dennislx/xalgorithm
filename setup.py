@@ -29,7 +29,12 @@ setup(
     author='Xiang Liu',
     author_email="dennisl@udel.edu",
     license='MIT',
-    packages=find_packages(exclude=('tests', 'tests.*')),
+    packages=find_packages(exclude=('tests', 'tests.*', 'exercises')),
     zip_safe=False,
-    platforms = ["Linux"]
+    platforms = ["Linux"],
+    entry_points={
+        'console_scripts': [
+            'xalgorithm = xalgorithm.cli:main'
+        ]
+    }
 )

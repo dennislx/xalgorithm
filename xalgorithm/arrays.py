@@ -6,7 +6,8 @@ from xalgorithm.decorate import tag_me
 
 __all__ = [
     'freq_lt_ntimes',
-    'flatten_nested_array'
+    'flatten_nested_array',
+    'josephus_problem'
 ]
 
 T = TypeVar('T')
@@ -133,5 +134,45 @@ def _bfs_hua_rong_dao(initial, final):
     return -1
 
 
+def josephus_problem(array: List[T], skip = 3, non_destructive = False) -> List[T]:
+    """
+    The function solves the Josephus problem by simulating the elimination of elements from an array in a circular manner.
 
-            
+    >>> array = [1,2,3,4]
+    >>> josephus_problem(array, skip=3) == [3,2,4,1]
+    """
+    if non_destructive: 
+        return _nd_josephus_problem(array, skip)
+    n, cur = len(array), 0
+    ans = []
+    while n > 0:
+        cur = (cur + skip - 1) % n
+        ans.append(array.pop(cur))
+        n -= 1
+    return ans
+
+def _nd_josephus_problem(array, skip):
+    # i am thinking of using recursion
+    return []
+
+
+## LC: longest substring without repeating characters
+
+def lengthOfLongestSubstring(self, s: str) -> int:
+    """
+    Given a string s, find the length of the longest substring without repeating characters.
+    - 0 <= s.length <= 5 * 104
+    - s consists of English letters, digits, symbols and spaces.
+
+    >>> lengthOfLongestSubstring("pwwkew") == 3 # i.e., "wke" or "kew"
+    """
+    ans, visited, left = 0, {}, 0
+    for i, x in enumerate(s):
+        if x in visited:
+            ans = max(ans, i-visited[x])
+        visited[x] = i
+    # in case we have abcdef none of them get repeated
+    return 1
+    
+
+

@@ -1,7 +1,8 @@
 import os
 import re
 from typing import List, Type, TypeVar, Iterable, Any, Generic
-
+import random
+import numpy as np
 
 __all__ = [
     'opath',
@@ -10,7 +11,13 @@ __all__ = [
     'oexists',
     'osplit',
     'osimplify',
+    'ocode',
+    'seed_all',
 ]
+
+def seed_all(seed):
+    np.random.seed(seed)
+    random.seed(seed)
 
 T = TypeVar("T")
 
@@ -33,7 +40,7 @@ def opath(file):
     """
     return os.path.abspath(os.path.expanduser(file))
 
-def ojoin(*args, create_if_not_exist=False):
+def ojoin(*args, create_if_not_exist=False, expand_user=False):
     """
     The `ojoin` function joins multiple path components and optionally creates the path if it does not exist.
     
@@ -41,7 +48,12 @@ def ojoin(*args, create_if_not_exist=False):
     """
     path = os.path.join(*args)
     if create_if_not_exist: omake(path)
+    if expand_user: path = os.path.expanduser(path)
     return path
+
+def ocode(file):
+    """Launch VSCode to open the file"""
+    os.system(f"code {file}")
 
 def omake(*args) -> List[os.PathLike]:
     """
