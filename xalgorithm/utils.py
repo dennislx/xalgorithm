@@ -3,6 +3,7 @@ import re
 from typing import List, Type, TypeVar, Iterable, Any, Generic
 import random
 import numpy as np
+from colorama import Fore, Style
 
 __all__ = [
     'opath',
@@ -13,6 +14,7 @@ __all__ = [
     'osimplify',
     'ocode',
     'seed_all',
+    'ocolor'
 ]
 
 def seed_all(seed):
@@ -107,3 +109,14 @@ def osimplify(path) -> os.PathLike:
         elif token != ".." and token != "." and token:
             stack.append(token)
     return "/" + "/".join(stack) # type: ignore
+
+def ocolor(string, color="cyan", bold=False, display=False):
+    r"""Returns stylized string with coloring and bolding for printing.
+    >>> print(ocolor('hello world', 'green', bold=True))
+    """
+    colors = {'red': Fore.RED, 'green': Fore.GREEN, 'blue': Fore.BLUE, 'cyan': Fore.CYAN, 'magenta': Fore.MAGENTA, 'black': Fore.BLACK, 'white': Fore.WHITE}
+    style = colors[color]
+    if bold: style += Style.BRIGHT
+    out = style + string + Style.RESET_ALL
+    if display: print(out)
+    return out

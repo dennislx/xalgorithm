@@ -98,3 +98,6 @@ rfm = RFM(df)
 ```
 </details>
 
+## Sep 10th
+
+Implemented the K-nearest neighbor algorithm with a fixed hyperparameter `k`. I haven't included the elbow method for selecting the optimal `k` yet. KNN is a lazy learning algorithm that relies on data for predictions, without constructing a parametric model
