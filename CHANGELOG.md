@@ -23,7 +23,7 @@ Implemented 4 decorators:
   def fib(n):
     if n <= 2: return 1
     return fib(n-1) + fib(n-2)
-  >>> fib(5)
+  >>> tag_me('dynamic programming').invoke('fib', 5) # fib(5)
   ```
   </details>
 
@@ -67,12 +67,13 @@ Implemented several array-based algorithms
 ## Sep 7th
 
 Implemented multiple metrics for ML classification and power analysis for A/B testing. Keep in mind that `P` stands for all real positive cases, and `P'` stands for all predicted positive cases
+:fire: TODO implement ROC curves, AUC calculations from scratch
 
 | function         | notes                                           |
 | --------         | ----------------------------------------------- |
 | accuracy         | (TP + TN) / (P + N)                             |
-| precision        | TP / P'                                         |
-| recall           | TP / P                                          |
+| precision        | TP / P' (or minimize type I error)              |
+| recall           | TP / P  (or minimize type II error)             |
 | `f1_score`       | 2 x TP / (P + P')                               |
 | `power_analysis` | calculate the sample size based on minimum detectable effect size, significance level, desired power, standard deviation, and other parameters |
 
@@ -101,3 +102,4 @@ rfm = RFM(df)
 ## Sep 10th
 
 Implemented the K-nearest neighbor algorithm with a fixed hyperparameter `k`. I haven't included the elbow method for selecting the optimal `k` yet. KNN is a lazy learning algorithm that relies on data for predictions, without constructing a parametric model
+:fire: Elbow method for selecting K and KNN visualization

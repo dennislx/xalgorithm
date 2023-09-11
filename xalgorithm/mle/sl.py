@@ -44,7 +44,3 @@ class KNN(Base):
             k_idx = np.argsort(dist)[:self.k]
             pred[i] = self._vote(k_idx) 
         return pred
-
-            
-        
-        

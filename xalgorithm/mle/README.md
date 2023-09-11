@@ -6,7 +6,7 @@ Here is the list of implementations:
 
 | Topic                 |  Finish Date |
 | :-------------------: |  :---------: |
-| K nearest neighbor    |  :white_check_square: Sep 10, 2023 |
+| K nearest neighbor    |  ✅ Sep 10, 2023 |
 
 ## unsupervised learning:
 
@@ -15,5 +15,5 @@ Here is the list of implementations:
 
 | Topic                 |  Finish Date |
 | :-------------------: |  :---------: |
-| multilayer perceptron |  :white_check_mark: |
+| multilayer perceptron |  ◻️ |
 
