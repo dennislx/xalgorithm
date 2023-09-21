@@ -2,7 +2,7 @@ The code is mostly borrowed from Machine Learning From Scratch
 
 Here is the list of implementations: 
 
-##supervised learning:
+## supervised learning:
 
 | Topic                 |  Finish Date |
 | :-------------------: |  :---------: |

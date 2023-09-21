@@ -50,8 +50,8 @@ def recall(actual, predicted):
     return metrics[1, 1] / np.sum(metrics[1, :])
 
 def f1_score(actual, predicted):
-    """ 
-        F1 =  2 x (Pre x Rec) / (Pre + Rec) \n
+    r""" 
+        F1 =  2 x (Pre x Rec) / (Pre + Rec)
            =  2 x TP / (P + P')
     """
     actual, predicted = check_valid(actual, predicted)

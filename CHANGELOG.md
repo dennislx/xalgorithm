@@ -103,3 +103,13 @@ rfm = RFM(df)
 
 Implemented the K-nearest neighbor algorithm with a fixed hyperparameter `k`. I haven't included the elbow method for selecting the optimal `k` yet. KNN is a lazy learning algorithm that relies on data for predictions, without constructing a parametric model
 :fire: Elbow method for selecting K and KNN visualization
+
+## Sep 16th
+
+Implemented print dataframe function built on top of rich API...
+
+## Sep 20th
+
+Implemented the `benchmark_classification()`, drawing inspiration from [LazyPredict](https://lazypredict.readthedocs.io/en/latest/). The concept behind this function is to measure the difficulty of a tabular classification task by running through a comprehensive set of standard machine learning classifiers, without adopting ensemble methods or fine-tuning hyperparameters. Here is an example of what the output looks like.
+
+![](https://i.imgur.com/LqAIgY1.png)

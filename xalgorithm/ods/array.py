@@ -1,5 +1,5 @@
 from typing import List
-from xalgorithm.ods.interface import BaseList, new_array
+from .interface import BaseList, new_array
 
 __all__ = ['ArrayStack', 'ControlList', 'ArrayQueue', 'ArrayDeque']
 

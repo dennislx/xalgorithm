@@ -3,13 +3,25 @@ __all__ = [
     "or_get_default", 
     "eucliean_distance",
     "gen_sample_data",
+    "get_progress",
 ]
-
 import numpy as np
 from sklearn import datasets
+from rich.progress import *
+
+def get_progress():
+    text_column = TextColumn("[progress.description]{task.description}", table_column=Column(ratio=2))
+    remain_column = TimeRemainingColumn(compact=True, table_column=Column(ratio=1))
+    bar_column = BarColumn(bar_width=None, table_column=Column(ratio=2))
+    percentage_column = TaskProgressColumn()
+    p = Progress(
+        text_column, remain_column, bar_column, percentage_column
+    )
+    return p
 
 def accuracy_score(y_true, y_pred):
     """ Compare y_true to y_pred and return the accuracy """
+    y_true = y_true.reshape(y_pred.shape)
     accuracy = np.sum(y_true == y_pred, axis=0) / len(y_true)
     return accuracy
 
@@ -48,11 +60,31 @@ def normalize(X, axis=-1, order=2):
     l2[l2 == 0] = 1
     return X / np.expand_dims(l2, axis)
 
-def gen_sample_data():
+def gen_sample_data(purpose='binaryclass'):
     """ Generalize sample dataset """
     data = datasets.load_digits()
     target: list = data.target # type: ignore
-    idx = np.append( np.where(target == 1)[0], np.where(target == 8)[0])
-    X, y = data.data[idx], target[idx] # type: ignore
-    y[y==1] = 0; y[y==8] = 1;
+    if purpose == 'binaryclass':
+        idx = np.append( np.where(target == 1)[0], np.where(target == 8)[0])
+        X, y = data.data[idx], target[idx] # type: ignore
+        y[y==1] = 0; y[y==8] = 1;
+    elif purpose == 'multiclass':
+        X = data.data
+        y = to_categorical(target)
     return normalize(X), y
+
+def to_categorical(x, n_col=None):
+    """ One-hot encoding of nominal values """
+    if not n_col: n_col = np.amax(x) + 1
+    one_hot = np.zeros((x.shape[0], n_col))
+    one_hot[np.arange(x.shape[0]), x] = 1
+    return one_hot
+
+    
+if __name__ == '__main__':
+    import time
+    with get_progress() as p:
+        task = p.add_task("[red]Downloading...", total=1000)
+        while not p.finished:
+            p.update(task, advance=0.5)
+            time.sleep(0.1)
