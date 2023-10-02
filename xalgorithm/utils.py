@@ -2,8 +2,10 @@ import os
 import re
 from typing import List, Type, TypeVar, Iterable, Any, Generic
 import random
+import bbcode
 import numpy as np
 from colorama import Fore, Style
+from sty import fg, bg, ef, rs
 
 __all__ = [
     'opath',
@@ -14,8 +16,52 @@ __all__ = [
     'osimplify',
     'ocode',
     'seed_all',
-    'ocolor'
+    'xcolor',
+    'xprint'
 ]
+
+
+class Xcolor:
+    """Parse bbcode formatted string 
+    ### supported formats
+
+    | tag &nbsp;   | input &nbsp;          | effects &nbsp;                        |
+    |:-------------|:----------------------|:--------------------------------------|
+    | b            | [b]test[/b]           | boldface text                         |
+    | i            | [i]test[/i]           | display the content in italic style   |
+    | u            | [u]test[/u]           | underline the text                    |
+    | s            | [s]test[/s]           | draws a horizontal line over the text |
+    | dim          | [dim]test[/dim]       | decrease contrast of text             |
+    | fg           | [fg red]test[/fg]     | color text in red                     |
+    | bg           | [bg 255,0,0]test[/bg] | set background color of text to red   |`
+    """
+    def __init__(self):
+        self.parser = bbcode.Parser(install_defaults=False, escape_html=False, replace_cosmetic=False, replace_links=False)
+        self.install_default_formatters()
+
+    def install_default_formatters(self):
+        effects = dict(
+            b=(ef.b, rs.bold_dim), i=(ef.i, rs.i), u=(ef.u, rs.u),
+            s=(ef.strike, rs.strike), dim=(ef.dim, rs.dim_bold)
+        )
+        for name, (bf,af) in effects.items():
+            self.parser.add_simple_formatter(name, "{}%(value)s{}".format(bf, af))
+        colors = {'red', 'green', 'blue', 'cyan', 'magenta', 'black', 'white', 'grey'}
+        for c in colors: 
+            self.parser.add_simple_formatter(c, '{}%(value)s{}'.format(fg(c), rs.fg))
+        def render_color(tag_name, value, options, parent, context):
+            color = ' '.join([k for k in options.keys()])
+            f = eval(tag_name)
+            g = lambda _: '{}{}{}'.format(_, value, _), rs(tag_name)
+            return g(f(*eval(color))) if ',' in color else g(f(color))
+        self.parser.add_formatter('fg', render_color, strip=True, swallow_trailing_newline=True)
+        self.parser.add_formatter('bg', render_color, strip=True, swallow_trailing_newline=True)
+        
+
+    def __call__(self, string):
+        return self.parser.format(string)
+
+STY = Xcolor()
 
 def seed_all(seed):
     np.random.seed(seed)
@@ -110,9 +156,9 @@ def osimplify(path) -> os.PathLike:
             stack.append(token)
     return "/" + "/".join(stack) # type: ignore
 
-def ocolor(string, color="cyan", bold=False, display=False):
+def xcolor(string, color="cyan", bold=False, display=False):
     r"""Returns stylized string with coloring and bolding for printing.
-    >>> print(ocolor('hello world', 'green', bold=True))
+    >>> print(xcolor('hello world', 'green', bold=True))
     """
     colors = {'red': Fore.RED, 'green': Fore.GREEN, 'blue': Fore.BLUE, 'cyan': Fore.CYAN, 'magenta': Fore.MAGENTA, 'black': Fore.BLACK, 'white': Fore.WHITE}
     style = colors[color]
@@ -120,3 +166,30 @@ def ocolor(string, color="cyan", bold=False, display=False):
     out = style + string + Style.RESET_ALL
     if display: print(out)
     return out
+
+def xprint(string, display=True):
+    r"""Output styled text by bridging the gap between 'sty' and 'bbcode' to avoid  long-winded processes in rich.print implementation
+
+    ### STY
+    ef(effect): bold, italic, underl, inverse, dim, hidden, strike, rs
+    bg(background)/fg(foreground): black, da_grey, grey, li_grey, magenta, cyan, rs, we can also do fg(10, 255, 10) to define color in rgb format
+
+    ### Example
+    ```
+    >>> xprint("[b]boldface text[/b]")
+    ```
+
+    ### TODO
+    The current implementation doesn't support nested BBCode within the same category. Consequently, in the example provided:
+    ```
+    >>> [red]red [blue]blue [green]green[/green] red[/red] 
+    ```
+    the last word enclosed in `[red]` tags won't be colored in red as expected.
+    """
+    out = STY(string)
+    if display: print(out)
+    else: return out
+
+    
+if __name__ == '__main__':
+    xprint("[green][fg red][blue]I[/blue] really [cyan]like[/cyan][/fg] Python[/green]")

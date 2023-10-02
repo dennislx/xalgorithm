@@ -1,4 +1,4 @@
-__all__ = ['print_df', 'describe_df', 'chi2_test', 'make_classification']
+__all__ = ['print_df', 'describe_df', 'chi2_test', 'Benchmark']
 
 """Modified from [rich-dataframe](https://pypi.org/project/rich-dataframe/)
 """
@@ -84,7 +84,7 @@ def get_val_encoder():
     return low, high
 
 
-class benchmark_classification:
+class Benchmark:
     
     r""" The function evaluates various widely recognized machine learning algorithms and offers several classification metrics for comparative analysis.
 
@@ -199,13 +199,13 @@ class CloudpickleWrapper(object):
         
 
 
-def make_classification(n_samples, n_features, n_categories):
+def make_classification(n_samples, n_features, n_categories, weights=None):
     r"""
     ```
     >>> data, cat_cols, num_cols = make_classification(n_samples=10000, n_features=20, n_categories=4)
     ```
     """
-    X,y = MC(n_samples=n_samples, n_features=n_features, random_state=42, n_informative=5)
+    X,y = MC(n_samples=n_samples, n_features=n_features, random_state=42, n_informative=5, weights=weights)
     cat_cols = random.choices(list(range(X.shape[-1])),k=n_categories)
     num_cols = [i for i in range(X.shape[-1]) if i not in cat_cols]
     for col in cat_cols:
@@ -286,10 +286,11 @@ if __name__ == '__main__':
     from sklearn import datasets
     from sklearn.utils import shuffle
     boston = datasets.load_breast_cancer()
-    X, y = shuffle(boston.data, boston.target, random_state=13)
+    X,y = MC(n_samples=10_000, n_features=20, random_state=42, n_informative=5, weights=[0.9]) # 10% positive
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
-    bench = benchmark_classification()
+    bench = Benchmark()
     result = bench.fit(X_train, y_train, X_test, y_test)
+    print(1)
     
 
 

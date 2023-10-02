@@ -110,6 +110,41 @@ Implemented print dataframe function built on top of rich API...
 
 ## Sep 20th
 
-Implemented the `benchmark_classification()`, drawing inspiration from [LazyPredict](https://lazypredict.readthedocs.io/en/latest/). The concept behind this function is to measure the difficulty of a tabular classification task by running through a comprehensive set of standard machine learning classifiers, without adopting ensemble methods or fine-tuning hyperparameters. Here is an example of what the output looks like.
+Implemented the `benchmark_classification()`, drawing inspiration from [LazyPredict](https://lazypredict.readthedocs.io/en/latest/). The concept behind this function is to measure the difficulty of a tabular classification task by running through a comprehensive set of standard machine learning classifiers, without adopting ensemble methods or fine-tuning hyperparameters. Here is an example of what the output looks like (A rather imbalanced dataset with positive cases : negative cases = 1 : 9).
 
-![](https://i.imgur.com/LqAIgY1.png)
+![](https://i.imgur.com/1USXL5O.png)
+
+
+## Oct 1st
+
+Implemented several magic commands in `out/magic_cmd.py`. Initially, my motivation was to record the execution time for certain functions. However, I later discovered that VSCode provides cell execution time by default. 
+
+It allows me to create decorator functions for magic command functions, such as cache management. Indeed, this will prove beneficial on my data science journey, especially when collaborating with other data science colleagues who are more comfortable to use Jupyter Notebook.
+
+
+```py
+%load_ext xalgorithm.out
+```
+Line Magic: ['%py_version'] 
+
+Cell Magic: ['%%csv', '%%time']
+
+```
+%%csv --sep ,
+
+col1, col2, col3
+0, 1, 2
+3, 4, 5
+```
+![](https://i.imgur.com/iUV7Ejh.png)
+
+### Oct 2nd
+
+I find that `rich.print` is not user-friendly when it comes to changing font size. The font size is larger than my other text in the Jupyter notebook, so I'd like to implement my own print function. Inspired by [bbcode](https://dcwatson.github.io/bbcode/) and [sty](https://sty.mewo.dev/), I write functions to parse strings with BBCode-style defined styles, including fg(foreground color), bg(background color), and a series of effects (e.g., underline, strike, bold, italic, etc). This way, users can generate text with styles and print it in the terminal or Jupyter console.
+
+```py
+xprint("[b]bold[/b] [red]and[/red] [green][u]underline in green[/u][/green]")
+```
+
+$$\textbf{bold} \textcolor{red}{\ and} \underline{\textcolor{green}{\ underline\ in \ green }}$$
+
