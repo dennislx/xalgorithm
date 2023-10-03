@@ -36,7 +36,7 @@ class Xcolor:
     | bg           | [bg 255,0,0]test[/bg] | set background color of text to red   |`
     """
     def __init__(self):
-        self.parser = bbcode.Parser(install_defaults=False, escape_html=False, replace_cosmetic=False, replace_links=False)
+        self.parser = bbcode.Parser(install_defaults=False, escape_html=False, replace_cosmetic=False, replace_links=False, newline='\n')
         self.install_default_formatters()
 
     def install_default_formatters(self):
@@ -52,7 +52,7 @@ class Xcolor:
         def render_color(tag_name, value, options, parent, context):
             color = ' '.join([k for k in options.keys()])
             f = eval(tag_name)
-            g = lambda _: '{}{}{}'.format(_, value, _), rs(tag_name)
+            g = lambda _: '{}{}{}'.format(_, value, rs(tag_name))
             return g(f(*eval(color))) if ',' in color else g(f(color))
         self.parser.add_formatter('fg', render_color, strip=True, swallow_trailing_newline=True)
         self.parser.add_formatter('bg', render_color, strip=True, swallow_trailing_newline=True)
@@ -168,7 +168,7 @@ def xcolor(string, color="cyan", bold=False, display=False):
     return out
 
 def xprint(string, display=True):
-    r"""Output styled text by bridging the gap between 'sty' and 'bbcode' to avoid  long-winded processes in rich.print implementation
+    r"""Output styled text by bridging the gap between 'sty' and 'bbcode' to avoid long-winded processes in rich.print implementation
 
     ### STY
     ef(effect): bold, italic, underl, inverse, dim, hidden, strike, rs

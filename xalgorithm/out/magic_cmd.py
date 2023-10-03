@@ -5,10 +5,10 @@ from IPython.core.magic import ( Magics, magics_class, line_magic, cell_magic, l
 from IPython.core.magic_arguments import (magic_arguments, argument, parse_argstring)
 from types import ModuleType
 from sys import version_info as V
-from rich import print as rprint
 from io import StringIO
 
 from xalgorithm.out.pd_rich import print_df, pd
+from xalgorithm.utils import xprint
 import time as T
 import argparse
 
@@ -19,7 +19,7 @@ def print_versions(symbol_table=locals()):
         if isinstance(val, ModuleType):
             try: print('{:>10}  {}'.format(val.__name__, val.__version__))
             except AttributeError: continue
-    rprint(f'\n[bold dark_cyan]Python {PYTHON_VER}')
+    xprint(f'[b]Python[green] {PYTHON_VER}[/green][/b]')
 
 class BaseMagic:
     r"""
@@ -45,14 +45,13 @@ class ParseString(argparse.Action):
 
 
 @magic_arguments()
-@argument('title', nargs='+', default=["time"], help=("the title of this cell execution"), action=ParseString)
+@argument('title', nargs='*', default=["time"], help=("the title of this cell execution"), action=ParseString)
 @cell_magic
 def time(line, cell):
     args = parse_argstring(time, line)
     start = T.time()
     get_ipython().run_cell(cell)
-    result = "%s: %s seconds.\n" % (args.title, T.time() - start)
-    rprint(result)
+    xprint("[b][green]%s[/green]: [cyan]%s[/cyan] seconds[/b]" % (args.title, T.time() - start))
 
 
 @magic_arguments()
@@ -60,7 +59,10 @@ def time(line, cell):
 @argument('-s', '--sep', default=',', type=str, help=("the delimiter that separates the values, sep is set to comma by default"))
 @cell_magic
 def csv(line, cell):
-    r"""please remember to put delimiter in double quote string"""
+    r"""Parses the cell into a DataFrame and then prints the DataFrame to the console in the specified format.
+    
+    warning: please remember to put deinlimiter in double quote string
+    """
     args = parse_argstring(csv, line)
     sio  = StringIO(cell)
     df   = pd.read_csv(sio, sep=',', skipinitialspace=True)
@@ -70,7 +72,23 @@ def csv(line, cell):
         headers = [x + ' &nbsp;' for x in df.columns]
         kwargs = dict(index=False, numalign="left", headers=headers)
         return print(df.to_markdown(**kwargs))
-    return print_df(df)
+    elif args.format == 'rich':
+        return print_df(df)
+    else:
+        raise NotImplementedError("I haven't implemented handler to deal with this format yet")
+    
 
 if __name__ == '__main__':
-    pass
+    str = """
+    tag, input, effects
+    b, [b]test[/b], boldface text
+    i, [i]test[/i], display the content in italic style
+    u, [u]test[/u], underline the text
+    s, [s]test[/s], draws a horizontal line over the text
+    dim, [dim]test[/dim], decrease contrast of text
+    fg, [fg red]test[/fg], color text in red
+    bg, "[bg 255,0,0]test[/bg]", set background color of text to red
+    """
+    sio  = StringIO(str)
+    df   = pd.read_csv(sio, sep=',', skipinitialspace=True)
+    print_df(df)

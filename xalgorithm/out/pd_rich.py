@@ -24,6 +24,7 @@ from tqdm import tqdm
 import random
 import inspect
 import time
+import re
 
 COLORS = ["cyan", "magenta", "red", "green", "blue", "purple"]
 NCOLOR = len(COLORS)
@@ -200,7 +201,15 @@ class CloudpickleWrapper(object):
 
 
 def make_classification(n_samples, n_features, n_categories, weights=None):
-    r"""
+    r"""Generates a synthetic classification dataset with specified number of samples, features, and categories.
+    
+    @param n_samples The number of samples or instances in the dataset.
+    @param n_features The number of features in the dataset. Each feature represents a characteristic or
+    attribute of the data points.
+    @param n_categories The number of classes (or labels) of the classification problem.
+    @param weights The proportions of samples assigned to each class. By default, it is set to `None`, which means that all categories have equal weights
+    
+    @return The function `make_classification` returns three values: `data`, `cat_cols`, and `num_cols`.
     ```
     >>> data, cat_cols, num_cols = make_classification(n_samples=10000, n_features=20, n_categories=4)
     ```
@@ -226,7 +235,8 @@ def make_classification(n_samples, n_features, n_categories, weights=None):
     return data, cat_col_names, num_col_names
 
 def describe_df(df: pd.DataFrame):
-    """ Some exploratory analysis of each variable in Dataframe """
+    r"""Performs exploratory analysis on each variable in a DataFrame, providing information such as count, number of unique values, percentage of unique values, number of null values, and data type.
+    """
     desc = pd.DataFrame(index=list(df))
     desc['count'] = df.count()
     desc['nunique'] = df.nunique()
@@ -255,6 +265,13 @@ def print_df(df: pd.DataFrame, limit=None, cols=None, title=None, caption=None, 
     :param caption: The caption for the table (underneath the table)
     :param sort_col:The column name to sort this table
     """
+    def parse_str(text):
+        text = str(text)
+        text = re.sub(r'\[fg (.*)\](.*)\[/fg\]', r'[\1]\2[/]', text)
+        text = re.sub(r'\[bg (.*)\](.*)\[/bg\]', r'[on \1]\2[/]', text)
+        text = re.sub(r'(\d+,\s*\d+,\s*\d+)', lambda _: 'rgb(%s)'%re.sub(r"\s+", "", _.group(1)), text)
+        return text
+
     df = df.reset_index().rename(columns={"index": ""})
     if sort_col is not None:
         df = df.sort_values(by=sort_col, ascending=False)
@@ -266,7 +283,7 @@ def print_df(df: pd.DataFrame, limit=None, cols=None, title=None, caption=None, 
         tbl.add_column(col)
     #> step 2: add rows
     for row in df.values[:limit]: 
-        tbl.add_row(*list(map(str, row)))
+        tbl.add_row(*list(map(parse_str, row)))
     #> step 3: 
     #>  a) move text to right
     #>  b) add random color (header + bold)

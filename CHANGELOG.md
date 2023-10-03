@@ -1,5 +1,6 @@
 ## Sep 3th, 2023
 
+
 Implemented 4 decorators:
     
 - print me: useful in debugging, will output function, its argument and result
@@ -130,13 +131,19 @@ Line Magic: ['%py_version']
 Cell Magic: ['%%csv', '%%time']
 
 ```
-%%csv --sep ,
+%%csv --format rich
 
-col1, col2, col3
-0, 1, 2
-3, 4, 5
+tag, input, effects
+b, [b]test[/b], boldface text
+i, [i]test[/i], display the content in italic style
+u, [u]test[/u], underline the text
+s, [s]test[/s], draws a horizontal line over the text
+dim, [dim]test[/dim], decrease contrast of text
+fg, [fg red]test[/fg], color text in red
+bg, "[bg 255,0,0]test[/bg]", set background color of text to red
 ```
-![](https://i.imgur.com/iUV7Ejh.png)
+
+![](https://i.imgur.com/faWTU3M.png)
 
 ### Oct 2nd
 
@@ -146,5 +153,27 @@ I find that `rich.print` is not user-friendly when it comes to changing font siz
 xprint("[b]bold[/b] [red]and[/red] [green][u]underline in green[/u][/green]")
 ```
 
-$$\textbf{bold} \textcolor{red}{\ and} \underline{\textcolor{green}{\ underline\ in \ green }}$$
+$$\textbf{bold} \textcolor{red}{\ \text{and}} \underline{\textcolor{green}{\ \text{underline\ in \ green}}}$$
+
+
+### Oct 3rd
+
+I didn't implemented my own SQL magic `cell/line` command, but I have loaded sql magic from [this work](https://github.com/catherinedevlin/ipython-sql). Although IPython allows you to register multiple classes and functions with a single function call, you need to import/execute `@cell/@line` first before importing scripts that contain `@magics_class`. This is due to its implementation of the decorator: `magics_class`. Once I have registered SqlMagic, I can connect to my local PostgreSQL database running on port 5432 and write SQL queries to interact with the database effectively.
+
+```py
+%load_ext xalgorithm.out
+conn = 'postgresql://{username}:{password}@localhost/{database}'
+%sql $conn
+```
+
+```py
+%%sql
+-- put fetched table to python variable to use it later on
+result << 
+SELECT actor_id, last_name
+FROM actor
+LIMIT 5
+```
+
+
 

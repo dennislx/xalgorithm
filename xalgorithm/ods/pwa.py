@@ -1,3 +1,16 @@
+"""
+1. What are the key components of a power analysis, and how do they interact to determine the required sample size for a study?
+
+A: minimum detectable effect size, significance level, desired power, standard deviation and sample size
+
+2. Describe the trade-off between Type I and Type II errors in hypothesis testing and how it relates to power analysis. 
+
+Type I error (alpha) is the probability of rejecting a null hypothesis when it is actually true. In other words, it's a false positive. Lowering α makes it harder to declare an effect statistically significant, reducing the risk of false positives but increasing the risk of false negatives.
+
+Type II Error (beta): This is the probability of failing to reject a null hypothesis when it is actually false. It's a false negative. Power (1 - beta) is the complementary probability, and it represents the likelihood of correctly detecting an effect when it truly exists. 
+
+![](https://www.theanalysisfactor.com/wp-content/uploads/2009/12/one-sided-test.jpg)
+"""
 __all__ = ['power_analysis']
 
 import scipy.stats as stats
