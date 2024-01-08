@@ -1,3 +1,7 @@
+"""
+I will eventually implement my own memoization function but now I will use lonelyenvoy / python-memoization
+for now
+"""
 import os
 import re
 from typing import List, Type, TypeVar, Iterable, Any, Generic
@@ -6,6 +10,9 @@ import bbcode
 import numpy as np
 from colorama import Fore, Style
 from sty import fg, bg, ef, rs
+from memoization import cached
+from memoization.model import HashedList
+
 
 __all__ = [
     'opath',
@@ -17,9 +24,24 @@ __all__ = [
     'ocode',
     'seed_all',
     'xcolor',
-    'xprint'
+    'xprint',
+    'xcache',
+    'xkeys'
 ]
 
+
+xcache = cached
+
+def xkeys(args, kwargs, kwargs_mark=(object(), )):
+    key = args
+    if kwargs:
+        key += kwargs_mark
+        for item in kwargs.items():
+            key += item
+    try:
+        hash_value = hash(key)
+    except TypeError: return str(key)
+    else: return HashedList(key, hash_value)
 
 class Xcolor:
     """Parse bbcode formatted string 

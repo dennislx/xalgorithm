@@ -1,8 +1,10 @@
-__all__ = ['print_df', 'describe_df', 'chi2_test', 'Benchmark']
+__all__ = ['print_df', 'describe_df', 'chi2_test', 'Benchmark', 'plot_df']
 
 """Modified from [rich-dataframe](https://pypi.org/project/rich-dataframe/)
 """
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 from rich.table import Table
 from rich import print as rprint
 from scipy import stats
@@ -233,6 +235,91 @@ def make_classification(n_samples, n_features, n_categories, weights=None):
     y = pd.Series(y, name="target")
     data = X.join(y)
     return data, cat_col_names, num_col_names
+
+def plot_df_helper(series: pd.Series, ax: plt.Axes, column: str, add_stat=True):
+    hist_kws = dict(alpha=0.4, density=False)
+    series = series.dropna()
+    bins = min(sns.distributions._freedman_diaconis_bins(series), 50)
+    ax.hist(series, bins, orientation='vertical', **hist_kws)
+    if add_stat:
+        text_kws = dict(transform=ax.transAxes, fontweight='demibold', fontsize=10, verticalalignment='top', horizontalalignment='right')
+        ax.text(x=0.97, y=0.96, s=f'Name: {column}', color='grey', **text_kws)
+        ax.text(x=0.97, y=0.86, s=f'Skewness: {series.skew():5.3}', color='brown', **text_kws)
+        ax.text(x=0.97, y=0.78, s=f'Kurtosis: {series.kurt():5.3}', color='green', **text_kws)
+        ax.text(x=0.97, y=0.70, s=f'Minimum: {float(series.min()):5.3}', color='purple', **text_kws)
+        ax.text(x=0.97, y=0.62, s=f'Maximum: {float(series.max()):5.3}', color='olive', **text_kws)
+
+def plot_cv(df: pd.DataFrame, xaxis: str, title: str, scoring: list, xlabel='x', ylabel='y'):
+    plt.figure(figsize=(10, 10)); plt.title(title, fontsize=13)
+    plt.xlabel(xlabel); plt.ylabel(ylabel)
+    ax = plt.gca()
+    if df[xaxis].dtype == float:
+        X_axis = np.array(df[xaxis], dtype=float)
+    elif df[xaxis].dtype == object:
+        X_axis = np.array(df[xaxis], dtype=str)
+    for scorer, color in zip(sorted(scoring), ["g", "k"]):
+        for sample, style in (("train", "--"), ("test", "-")):
+            sample_score_mean = df["mean_%s_%s" % (sample, scorer)]
+            sample_score_std = df["std_%s_%s" % (sample, scorer)]
+            if sample == 'train':
+                ax.fill_between( 
+                    X_axis, sample_score_mean - sample_score_std, sample_score_mean + sample_score_std, alpha=0.1, color=color,
+                )
+            ax.plot(
+                X_axis, sample_score_mean, style, color=color, alpha=1 if sample == "test" else 0.7, label="%s (%s)" % (scorer, sample),
+            )
+        best_index = np.nonzero(df["rank_test_%s" % scorer] == 1)[0][0]
+        best_score = df["mean_test_%s" % scorer][best_index]
+        ax.plot( [ X_axis[best_index], ] * 2, [0, best_score], linestyle="-.", color=color, marker="x", markeredgewidth=3, ms=8,)
+        # Annotate the best score for that scorer
+        ax.annotate("%0.2f" % best_score, (X_axis[best_index], best_score + 0.005))
+    plt.legend(loc="best")
+    plt.grid(False)
+    plt.show()
+
+def plot_categorical(df: pd.DataFrame, x: str, hue: str, ax: plt.Axes):
+    sns.countplot(data=df, x=x, hue=hue, ax=ax)
+    add_text = True if df[x].nunique() <= 5 else False
+    xytext = lambda p: (0, 10) if p.get_height() < ax.get_yticks()[1] else (0, -10)
+    if add_text:
+        for p in ax.patches:
+            ax.annotate(f'{p.get_height()}', (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=10, color='black', xytext=xytext(p), textcoords='offset points')
+    ax.set_xlabel("")
+    text_kws = dict(transform=ax.transAxes, fontweight='demibold', fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(x=0.97, y=0.96, s=f'Name: {x}', color='grey', **text_kws)
+
+
+def plot_df(df: pd.DataFrame, cols=None, ncol=5, eta=4, hue=None, **kwargs):
+    r""" The function plots distribution plots for each feature in the DataFrame.
+    
+    @param df:      The pandas DataFrame that contains the data to be plotted
+    @param cols:    Specify which columns of the DataFrame should be plotted, optional
+    @param ncol:    Specify the number of columns in the subplot grid, default 5
+    @param eta:     Used to control the size of the figure. Increasing the value of eta will result in a larger figure, while decreasing it will result in a smaller figure, default 4
+
+    ### Shape Measure of Distribution
+    @measure skewness:      The asymmetry of a distribution. 0 suggests a symmetric distribution and positive value indicates a longer tail on the right side (right-skewed or mean > median)
+    @measure kurtosis:      The peakedness compared to normal distribution (kurt=3), higher value indicates heavier tails and sharper peak
+    """
+    cols = list(df.columns if cols is None else cols)
+    if hue:
+        hue in cols and cols.remove(hue)
+        cols = cols + [hue]
+    df = df[cols]
+    _, Ncol = df.shape
+    Ncol = Ncol - (hue != None)
+    a, b = divmod(Ncol, ncol)
+    nrow = a + (b!=0)
+    fig = plt.figure(**{**dict(figsize=(eta*nrow, eta*ncol)), **kwargs})   
+    dtypes = df.dtypes
+    for i in range(Ncol):
+        ax = fig.add_subplot(nrow, ncol, i+1)
+        if dtypes[i] == 'O':
+            plot_categorical(df, x=cols[i], hue=hue, ax=ax)
+        elif hue:
+            sns.kdeplot(data=df, x=cols[i], hue=hue, fill=True, ax=ax)
+        else:
+            plot_df_helper(df.iloc[:, i], ax, cols[i])
 
 def describe_df(df: pd.DataFrame):
     r"""Performs exploratory analysis on each variable in a DataFrame, providing information such as count, number of unique values, percentage of unique values, number of null values, and data type.

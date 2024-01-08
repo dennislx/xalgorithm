@@ -10,6 +10,7 @@ del sys.argv[1] # this is crucial in proceeding program run
 if not re.match(r'\d\.\d\.\d', version):
     raise RuntimeError("must specify a version higher than {}".format(_info['version']))
 _info['version'] = version
+# version = _info['version']
 
 with open(f'{cwd}/package.json', 'w') as f:
     json.dump(_info, f)
@@ -36,5 +37,5 @@ setup(
         'console_scripts': [
             'xalgorithm = xalgorithm.cli:main'
         ]
-    }
+    },
 )

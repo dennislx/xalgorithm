@@ -175,5 +175,9 @@ FROM actor
 LIMIT 5
 ```
 
+### Oct 7th
 
+Implemented functions to plot distribution of each feature in a tabular data. 
+
+![](./figs/dist_of_shape.png)
 

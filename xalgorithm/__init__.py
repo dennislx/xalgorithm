@@ -9,4 +9,4 @@ __all__.extend(decorate.__all__)
 
 __home__ = '/mnt/Data/xalgorithm'
 
-__version__ = "0.0.4"
+__version__ = "0.0.5"
